@@ -1,0 +1,31 @@
+{
+	"name": "cloggi",
+	"version": "1.0.6",
+	"author": "Claudio Santancini",
+	"description": "cloggish!",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc && tsc-alias",
+		"start": "node dist/index.js",
+		"dev": "tsc && tsc-alias && npm start"
+	},
+	"keywords": [
+		"console",
+		"log"
+	],
+	"license": "CC BY-NC 4.0",
+	"type": "module",
+	"devDependencies": {
+		"@types/node": "^25.3.0",
+		"@types/prettyjson": "^0.0.33",
+		"tsc-alias": "^1.8.16",
+		"typescript": "^5.9.3"
+	},
+	"files": [
+		"dist/**/*"
+	],
+	"types": "dist/index.d.ts",
+	"dependencies": {
+		"prettyjson": "^1.2.5"
+	}
+}
