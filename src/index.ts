@@ -11,7 +11,7 @@ class ClogBuilder {
 	private _modifiers: InspectColorModifier[] = [];
 	private _timed: boolean = false;
 	private _overwrite: boolean = false;
-	private _lastWasOverwrite: boolean = false;
+	private _lastOverwriteLines: number = 0;
 
 	private _print(text: number | string | object): this {
 		const str =
@@ -31,16 +31,17 @@ class ClogBuilder {
 
 		const styled = st(formats, output, { validateStream: false });
 
-		if (this._lastWasOverwrite) {
-			process.stdout.write('\r\x1B[2K');
+		if (this._lastOverwriteLines > 0) {
+			const up = '\x1B[1A\x1B[2K'.repeat(this._lastOverwriteLines - 1);
+			process.stdout.write(up + '\r\x1B[2K');
 		}
 
 		if (this._overwrite) {
 			process.stdout.write(styled);
-			this._lastWasOverwrite = true;
+			this._lastOverwriteLines = (output.match(/\n/g)?.length ?? 0) + 1;
 		} else {
 			console.log(styled);
-			this._lastWasOverwrite = false;
+			this._lastOverwriteLines = 0;
 		}
 
 		this._color = 'white';
@@ -150,11 +151,24 @@ class ClogBuilder {
 		return this._print(char.repeat(length));
 	}
 
-	progress(text: number | string | object) {
+	progress(
+		message: number | string | object,
+		total: number,
+		current: number
+	): this {
 		this._overwrite = true;
 		this._timed = true;
 		this._color = 'cyan';
-		return this._print(text);
+
+		const percentage = ((current / total) * 100).toFixed(2);
+		const progressBarLength = 50;
+		const filledLength = Math.round((current / total) * progressBarLength);
+		const bar =
+			'█'.repeat(filledLength) + '-'.repeat(progressBarLength - filledLength);
+
+		const fullMessage = `${message}\n${current} of ${total}   |${bar}| ${percentage}%`;
+
+		return this._print(fullMessage);
 	}
 }
 
