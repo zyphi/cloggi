@@ -10,8 +10,10 @@ class ClogBuilder {
 	private _color: InspectColorForeground | InspectColorBackground = 'white';
 	private _modifiers: InspectColorModifier[] = [];
 	private _timed: boolean = false;
+	private _overwrite: boolean = false;
+	private _lastWasOverwrite: boolean = false;
 
-	private _print(text: number | number | string | object): this {
+	private _print(text: number | string | object): this {
 		const str =
 			typeof text === 'object'
 				? prettyjson.render(text)
@@ -27,11 +29,24 @@ class ClogBuilder {
 			| InspectColorModifier
 		)[] = [this._color, ...this._modifiers];
 
-		console.log(st(formats, output, { validateStream: false }));
+		const styled = st(formats, output, { validateStream: false });
+
+		if (this._lastWasOverwrite) {
+			process.stdout.write('\r\x1B[2K');
+		}
+
+		if (this._overwrite) {
+			process.stdout.write(styled);
+			this._lastWasOverwrite = true;
+		} else {
+			console.log(styled);
+			this._lastWasOverwrite = false;
+		}
 
 		this._color = 'white';
 		this._modifiers = [];
 		this._timed = false;
+		this._overwrite = false;
 
 		return this;
 	}
@@ -99,6 +114,10 @@ class ClogBuilder {
 	}
 	get timed(): this {
 		this._timed = true;
+		return this;
+	}
+	get ow(): this {
+		this._overwrite = true;
 		return this;
 	}
 
