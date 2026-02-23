@@ -149,6 +149,13 @@ class ClogBuilder {
 		const char = typeof a === 'string' ? a : typeof b === 'string' ? b : '-';
 		return this._print(char.repeat(length));
 	}
+
+	progress(text: number | string | object) {
+		this._overwrite = true;
+		this._timed = true;
+		this._color = 'cyan';
+		return this._print(text);
+	}
 }
 
 type Cloggi = ClogBuilder & ((text: number | string | object) => void);
