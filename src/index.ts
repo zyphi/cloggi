@@ -13,7 +13,7 @@ class ClogBuilder {
 	private _overwrite: boolean = false;
 	private _lastOverwriteLines: number = 0;
 
-	private _print(text: number | string | object): this {
+	private _print(text: any): this {
 		const str =
 			typeof text === 'object'
 				? prettyjson.render(text)
@@ -122,25 +122,25 @@ class ClogBuilder {
 		return this;
 	}
 
-	log(text: number | string | object): this {
+	log(text: any): this {
 		return this._print(text);
 	}
 
-	error(text: number | string | object): this {
+	error(text: any): this {
 		this._color = 'red';
 		this._modifiers.push('bold');
 		this._modifiers.push('inverse');
 		return this._print(text);
 	}
 
-	success(text: number | string | object): this {
+	success(text: any): this {
 		this._color = 'blue';
 		this._modifiers.push('bold');
 		this._modifiers.push('inverse');
 		return this._print(text);
 	}
 
-	warning(text: number | string | object): this {
+	warning(text: any): this {
 		this._color = 'yellow';
 		return this._print(text);
 	}
@@ -151,11 +151,7 @@ class ClogBuilder {
 		return this._print(char.repeat(length));
 	}
 
-	progress(
-		message: number | string | object,
-		total: number,
-		current: number
-	): this {
+	progress(message: any, total: number, current: number): this {
 		this._overwrite = true;
 		this._timed = true;
 		this._color = 'cyan';
@@ -172,11 +168,11 @@ class ClogBuilder {
 	}
 }
 
-type Cloggi = ClogBuilder & ((text: number | string | object) => void);
+type Cloggi = ClogBuilder & ((text: any) => void);
 
 const wrapInstance = (instance: ClogBuilder): Cloggi => {
 	return new Proxy(
-		function (text: number | string | object) {
+		function (text: any) {
 			(instance as any).log(text);
 		},
 		{
@@ -191,3 +187,5 @@ const wrapInstance = (instance: ClogBuilder): Cloggi => {
 };
 
 export const cloggi = wrapInstance(new ClogBuilder());
+
+cloggi.blue('This is a blue message');
